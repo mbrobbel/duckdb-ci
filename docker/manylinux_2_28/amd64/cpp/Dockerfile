@@ -56,6 +56,14 @@ RUN set -eux; \
     printf %s "${VCPKG_COMMIT}" > /vcpkg/vcpkgLastBuiltCommitId; \
     dnf clean all; \
     rm -rf /var/cache/dnf
+# Cargo uses a different vendor triple; retain the native GCC toolset selection.
+RUN set -eux; \
+    for driver in clang clang++; do \
+      native="x86_64-redhat-linux-gnu-${driver}.cfg"; \
+      target="/etc/clang/x86_64-unknown-linux-gnu-${driver}.cfg"; \
+      test -f "/etc/clang/${native}"; \
+      if [ ! -e "${target}" ]; then ln -s "${native}" "${target}"; fi; \
+    done
 ENV PATH="/opt/rh/gcc-toolset-14/root/usr/bin:${PATH}"
 ENV LD_LIBRARY_PATH="/opt/rh/gcc-toolset-14/root/usr/lib64:${LD_LIBRARY_PATH}"
 ENV VCPKG_ROOT=/vcpkg

@@ -1,13 +1,19 @@
-.PHONY: test test_clang test_gcc test_asan test_tsan clean
+.PHONY: test test_clang test_clang_rust_target test_gcc test_asan test_tsan clean
 
 MAKEFLAGS += --no-print-directory
 BUILD_DIR := build
 
-test: test_clang test_gcc
+test: test_clang test_clang_rust_target test_gcc
 
 test_clang:
 	$(MAKE) -C asan test_clang BUILD_DIR="../$(BUILD_DIR)"
 	$(MAKE) -C tsan test_clang BUILD_DIR="../$(BUILD_DIR)"
+
+test_clang_rust_target:
+	@if [ -f /etc/redhat-release ]; then \
+		printf '#include <ranges>\n' | \
+			clang++ --target="$$(uname -m)-unknown-linux-gnu" -std=c++20 -x c++ -fsyntax-only -; \
+	fi
 
 test_gcc:
 	@if [ -f /etc/os-release ] && grep -qi 'pine' /etc/os-release; then \
