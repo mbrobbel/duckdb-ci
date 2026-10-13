@@ -62,7 +62,7 @@ RUN set -eux; \
       native="aarch64-redhat-linux-gnu-${driver}.cfg"; \
       target="/etc/clang/aarch64-unknown-linux-gnu-${driver}.cfg"; \
       test -f "/etc/clang/${native}"; \
-      if [ ! -e "${target}" ]; then ln -s "${native}" "${target}"; fi; \
+      if [ ! -e "${target}" ]; then ln -sfn "${native}" "${target}"; fi; \
     done
 ENV PATH="/opt/rh/gcc-toolset-14/root/usr/bin:${PATH}"
 ENV LD_LIBRARY_PATH="/opt/rh/gcc-toolset-14/root/usr/lib64:${LD_LIBRARY_PATH}"

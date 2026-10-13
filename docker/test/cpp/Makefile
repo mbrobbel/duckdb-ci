@@ -10,7 +10,14 @@ test_clang:
 	$(MAKE) -C tsan test_clang BUILD_DIR="../$(BUILD_DIR)"
 
 test_clang_rust_target:
-	@if [ -f /etc/redhat-release ]; then \
+	@set -e; if [ -f /etc/redhat-release ]; then \
+		native=$$(LC_ALL=C clang++ -v -x c++ -fsyntax-only /dev/null 2>&1) || { printf '%s\n' "$$native"; exit 1; }; \
+		rust=$$(LC_ALL=C clang++ --target="$$(uname -m)-unknown-linux-gnu" -v -x c++ -fsyntax-only /dev/null 2>&1) || { printf '%s\n' "$$rust"; exit 1; }; \
+		native=$$(printf '%s\n' "$$native" | sed -n 's/^Selected GCC installation: //p'); \
+		rust=$$(printf '%s\n' "$$rust" | sed -n 's/^Selected GCC installation: //p'); \
+		printf 'Native GCC: %s\nRust target GCC: %s\n' "$$native" "$$rust"; \
+		test -n "$$native"; \
+		test "$$native" = "$$rust"; \
 		printf '#include <ranges>\n' | \
 			clang++ --target="$$(uname -m)-unknown-linux-gnu" -std=c++20 -x c++ -fsyntax-only -; \
 	fi
